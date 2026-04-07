@@ -37,3 +37,20 @@ def visualize_scramble(state: list):
     """))
 
     time.sleep(0.5)
+
+def execute_move(move: str, state: list) -> list:
+    cube = pc.Cube(pc.array_to_cubies(state))    
+    alg = pc.Formula(move)
+    cube(alg)
+
+    color_map = {"[r]": "0", "[y]": "1", "[g]": "2", "[w]": "3", "[o]": "4", "[b]": "5"}
+    faces = ["L", "U", "F", "D", "R", "B"] 
+    result = []
+    for face in faces:
+        face_array = cube.get_face(face)
+        for row in face_array:
+            for cubie in row:
+                result.append(color_map[str(cubie).lower()])
+
+    return result
+    
