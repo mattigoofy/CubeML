@@ -1,14 +1,30 @@
 import os
 import json
+import pandas as pd
 import pycuber as pc
 from pycuber.solver import CFOPSolver
 from IPython.display import display, HTML, SVG
 import requests
 import uuid
 import time
+from utils.preprocessing import cast_state
 
-def visualize_scramble(state: list):
-    cube = pc.Cube(pc.array_to_cubies(state))    # create a rubiks cube
+def uncast_state(df: pd.DataFrame) -> list:
+    """
+    Uncast a state from a DataFrame (e.g. TILE_L1, TILE_L2, ...) back to the original string format (e.g. `3 0 2 2 0 2 4 ...`)
+    """
+    faces = ["L", "U", "F", "D", "R", "B"]
+    values = []
+    for face in faces:
+        for tile_idx in range(1, 10):
+            col = f"TILE_{face}{tile_idx}"
+            values.append(str(df[col].iloc[0]))
+
+    return values
+
+def visualize_scramble(state: pd.DataFrame):
+    state_uncasted = uncast_state(state)
+    cube = pc.Cube(pc.array_to_cubies(state_uncasted))    # create a rubiks cube
     py_solver = CFOPSolver(cube)
     solve_alg = py_solver.solve(suppress_progress_messages=True)                # solve the state
 
@@ -38,8 +54,9 @@ def visualize_scramble(state: list):
 
     time.sleep(0.5)
 
-def execute_move(move: str, state: list) -> list:
-    cube = pc.Cube(pc.array_to_cubies(state))    
+def execute_move(move: str, state: pd.DataFrame) -> pd.DataFrame:
+    state_uncasted = uncast_state(state)
+    cube = pc.Cube(pc.array_to_cubies(state_uncasted))    
     alg = pc.Formula(move)
     cube(alg)
 
@@ -52,5 +69,6 @@ def execute_move(move: str, state: list) -> list:
             for cubie in row:
                 result.append(color_map[str(cubie).lower()])
 
-    return result
+    result_str = " ".join(result)
+    return cast_state(result_str)
     
