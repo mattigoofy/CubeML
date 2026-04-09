@@ -13,3 +13,10 @@ def cast_state(state: str) -> pd.DataFrame:
         d.update({ f"TILE_{face}{tile_idx}": [int(state_split[i])] })
         
     return pd.DataFrame(data=d)
+
+
+def preprocess(filepath_in: str, filepath_out: str):
+    """
+    Preprocess the whole cfop-dataset folder.
+    """
+    ...
