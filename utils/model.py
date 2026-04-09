@@ -19,11 +19,14 @@ def load_dataset(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     0           1               3               R           --> state 1
     4           2               5               L           --> state 2
     """
-    raise NotImplementedError
+    df = pd.read_pickle(filepath)
+    moves_df = df["MOVE"]
+    data_df = df.loc[:, df.columns != "MOVE"]
+    return (data_df, moves_df)
 
 
 # TODO change filepath to actual file
-X, y = load_dataset("cfop-dataset-preprocessed/dataset.pickle")
+X, y = load_dataset("cfop-dataset-processed/dataset.pkl")
 
 X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42)
 

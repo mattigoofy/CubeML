@@ -8,5 +8,6 @@ dependencies = [
     "pandas",
     "pycuber",
     "opendatasets",
-    "matplotlib"
+    "matplotlib",
+    "tqdm"
 ]
