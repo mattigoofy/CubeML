@@ -3,6 +3,7 @@
 
 # Don't push entire  dataset
 cfop-dataset/
+cfop-dataset-processed/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -6,20 +6,7 @@ from pycuber.solver import CFOPSolver
 from IPython.display import display, HTML, SVG
 import uuid
 import time
-from utils.preprocessing import cast_state
-
-def uncast_state(df: pd.DataFrame) -> list:
-    """
-    Uncast a state from a DataFrame (e.g. TILE_L1, TILE_L2, ...) back to the original string format (e.g. `3 0 2 2 0 2 4 ...`)
-    """
-    faces = ["L", "U", "F", "D", "R", "B"]
-    values = []
-    for face in faces:
-        for tile_idx in range(1, 10):
-            col = f"TILE_{face}{tile_idx}"
-            values.append(str(df[col].iloc[0]))
-
-    return values
+from states import cast_state, uncast_state
 
 def visualize_scramble(state: pd.DataFrame):
     state_uncasted = uncast_state(state)
@@ -86,3 +73,20 @@ def execute_move_list(move: str, state: list) -> list:
                 result.append(color_map[str(cubie).lower()])
 
     return result
+
+def execute_move_str(move: str, state: str) -> str:
+    state_list = state.split(" ")
+    cube = pc.Cube(pc.array_to_cubies(state_list))    
+    alg = pc.Formula(move)
+    cube(alg)
+
+    color_map = {"[r]": "0", "[y]": "1", "[g]": "2", "[w]": "3", "[o]": "4", "[b]": "5"}
+    faces = ["L", "U", "F", "D", "R", "B"] 
+    result = []
+    for face in faces:
+        face_array = cube.get_face(face)
+        for row in face_array:
+            for cubie in row:
+                result.append(color_map[str(cubie).lower()])
+
+    return " ".join(result)
