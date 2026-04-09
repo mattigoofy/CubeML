@@ -20,7 +20,53 @@ def preprocess(filepath_in: str, filepath_out: str):
     """
     Preprocess the whole cfop-dataset folder.
     """
-    ...
+
+    data: set[str] = {}
+
+    with open(filepath_in, "r") as file:
+        lines = file.read().strip().splitlines()
+
+        for i in range(0, len(lines)-1, 2):
+
+                        
+            cube_state = lines[i].split()
+            solution = lines[i+1]
+
+            if cube_state in data:
+                continue
+    
+            # 6 sides, 9 facelets
+            if len(cube_state) != 6*9:
+                continue
+    
+            # No final states
+            if solution == "#":
+                continue
+    
+            if len(solution) > 1:
+                # U2 -> U + U
+                if solution[1] == "2":
+                    single_move = solution[0]
+                    next_state = cube_state
+                    for i in range(2):
+                        data.append({"state": cast_state(next_state), "solution": single_move})
+                        next_state = execute_move_list(single_move, next_state)
+    
+                # U' -> U + U + U
+                elif solution[1] == "'":
+                    single_move = solution[0]
+                    next_state = cube_state
+                    for i in range(3):
+                        data.append({"state": cast_state(next_state), "solution": single_move})
+                        next_state = execute_move_list(single_move, next_state)
+
+        
+        
+                    
+            data.add({"state": cast_state(cube_state), "solution": solution})
+
+    df = pd.DataFrame(data=data)
+    df.to_pickle(filepath_out)
 
 if __name__ == "__main__":
     path_in: str = "../cfop-dataset/"
