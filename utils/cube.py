@@ -4,7 +4,6 @@ import pandas as pd
 import pycuber as pc
 from pycuber.solver import CFOPSolver
 from IPython.display import display, HTML, SVG
-import requests
 import uuid
 import time
 from utils.preprocessing import cast_state

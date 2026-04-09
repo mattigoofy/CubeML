@@ -1,0 +1,11 @@
+[project]
+name = "CubeML"
+version = "0.1.0"
+dependencies = [
+    "ipython",
+    "scikit-learn",
+    "numpy",
+    "pandas",
+    "pycuber",
+    "opendatasets"
+]
