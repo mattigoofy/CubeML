@@ -1,5 +1,5 @@
 # Don't push notebooks
-*.ipynb
+.ipynb
 
 # Don't push entire  dataset
 cfop-dataset/

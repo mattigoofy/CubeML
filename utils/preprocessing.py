@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 def cast_state(state: str) -> pd.DataFrame:
     """
@@ -20,3 +21,14 @@ def preprocess(filepath_in: str, filepath_out: str):
     Preprocess the whole cfop-dataset folder.
     """
     ...
+
+if __name__ == "__main__":
+    path_in: str = "../cfop-dataset/"
+    path_out: str = "../cfop-dataset-processed/"
+    if not os.path.isdir(path_in):
+        raise Exception(f"Path {path_in} is not a directory.")
+    
+    if not os.path.isdir(path_out):
+        os.mkdir(path_out)
+        
+    preprocess(path_in, path_out)
