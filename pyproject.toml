@@ -7,5 +7,6 @@ dependencies = [
     "numpy",
     "pandas",
     "pycuber",
-    "opendatasets"
+    "opendatasets",
+    "matplotlib"
 ]
