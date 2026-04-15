@@ -46,7 +46,7 @@ def visualize_scramble_terminal(state: pd.DataFrame):
     print(cube)
 
 
-def is_cube_solved():
+def is_cube_solved(state: pd.DataFrame):
     state_uncasted = uncast_state(state)
     cube = pc.Cube(pc.array_to_cubies(state_uncasted))    # create a rubiks cube
     solved_cube = pc.Cube()
@@ -54,6 +54,12 @@ def is_cube_solved():
     
 
 def execute_move(move: str, state: pd.DataFrame) -> pd.DataFrame:
+    """
+    Executes a move on `state`.
+
+    Returns:
+        The new state as a pandas DataFrame
+    """
     state_uncasted = uncast_state(state)
     cube = pc.Cube(pc.array_to_cubies(state_uncasted))    
     alg = pc.Formula(move)
@@ -88,6 +94,12 @@ def execute_move_list(move: str, state: list) -> list:
     return result
 
 def execute_move_str(move: str, state: str) -> str:
+    """
+    Executes a move on `state`.
+
+    Returns:
+        The new state as a string
+    """
     state_list = state.split(" ")
     cube = pc.Cube(pc.array_to_cubies(state_list))    
     alg = pc.Formula(move)

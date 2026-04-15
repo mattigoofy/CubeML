@@ -82,6 +82,12 @@ Random forest heeft de parameters ([scikitlearn](https://scikit-learn.org/stable
 
 De beste hyperparameter tuning strategie zal een random search zijn, omdat een grid search te veel waarden moet bekijken.
 
+### Scoring function
+
+Lijst van alle mogelijke scorings: https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-string-names
+
+Omdat we met een c algoritme werken dat meer dan twee klassen bevat, kunnen alle binary scoring algoritmes niet gebruikt worden.
+
 ### Validation Strategy
 
 Het algoritme kan moves selecteren tot het aan de \`#\` move komt (wat het einde van een solve kenmerkt), daarna valideren we of dit weldegelijk de opgeloste state is. Deze methode laat toe dat meerdere ‘oplossinspaden’ kunnen gebruikt worden om aan een opgeloste state te geraken.
