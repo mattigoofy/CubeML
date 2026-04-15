@@ -5,13 +5,16 @@ def uncast_state(df: pd.DataFrame) -> list:
     Uncast a state from a DataFrame (e.g. TILE_L1, TILE_L2, ...) back to the original string format (e.g. `3 0 2 2 0 2 4 ...`)
     """
     faces = ["L", "U", "F", "D", "R", "B"]
+    face_color = {"L": "0","U": "1","F": "2","D": "3","R": "4","B": "5"}
+
     values = []
     for face in faces:
         for tile_idx in range(1, 10):
             if tile_idx == 5:  # skip middle sticker
-                continue
-            col = f"TILE_{face}{tile_idx}"
-            values.append(str(df[col].iloc[0]))
+                values.append(face_color[face])
+            else:
+                col = f"TILE_{face}{tile_idx}"
+                values.append(str(df[col].iloc[0]))
 
     return values
 

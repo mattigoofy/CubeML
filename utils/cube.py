@@ -6,7 +6,7 @@ from pycuber.solver import CFOPSolver
 from IPython.display import display, HTML, SVG
 import uuid
 import time
-from states import cast_state, uncast_state
+from utils.states import cast_state, uncast_state
 
 def visualize_scramble(state: pd.DataFrame):
     state_uncasted = uncast_state(state)
@@ -39,6 +39,19 @@ def visualize_scramble(state: pd.DataFrame):
     """))
 
     time.sleep(0.5)
+
+def visualize_scramble_terminal(state: pd.DataFrame):
+    state_uncasted = uncast_state(state)
+    cube = pc.Cube(pc.array_to_cubies(state_uncasted))    # create a rubiks cube
+    print(cube)
+
+
+def is_cube_solved():
+    state_uncasted = uncast_state(state)
+    cube = pc.Cube(pc.array_to_cubies(state_uncasted))    # create a rubiks cube
+    solved_cube = pc.Cube()
+    return cube == solved_cube
+    
 
 def execute_move(move: str, state: pd.DataFrame) -> pd.DataFrame:
     state_uncasted = uncast_state(state)
