@@ -8,6 +8,8 @@ def uncast_state(df: pd.DataFrame) -> list:
     values = []
     for face in faces:
         for tile_idx in range(1, 10):
+            if tile_idx == 5:  # skip middle sticker
+                continue
             col = f"TILE_{face}{tile_idx}"
             values.append(str(df[col].iloc[0]))
 
@@ -23,6 +25,8 @@ def cast_state(state: list) -> pd.DataFrame:
     for i, state in enumerate(state_split):
         face = faces[(i // 9) % 9]
         tile_idx = (i % 9) + 1
+        if tile_idx == 5:  # skip middle sticker
+            continue
         d.update({ f"TILE_{face}{tile_idx}": [int(state_split[i])] })
         
     return pd.DataFrame(data=d)
