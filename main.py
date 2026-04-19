@@ -4,19 +4,18 @@ from utils.cube import visualize_scramble, execute_move, is_cube_solved, visuali
 MAX_NUM_MOVES = 1000
 
 def main():
-    model, X_test, y_test = train_model("cfop-dataset-processed/dataset_no_prime.pkl")
+    model, X_test, y_test = train_model("cfop-dataset-processed/dataset_with_prime.pkl", 100000)
     show_model_score(model, X_test, y_test)
 
     state = X_test[:1]
-    prediction = model.predict(state)[0]
 
     number_of_moves = 0
     while not is_cube_solved(state):
         if number_of_moves > MAX_NUM_MOVES:
             break
 
-        state = execute_move(prediction, state)
         prediction = model.predict(state)[0]
+        state = execute_move(prediction, state)
         print(f"Prediction: {prediction}")
         number_of_moves += 1
 

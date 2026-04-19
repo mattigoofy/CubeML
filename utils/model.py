@@ -8,13 +8,16 @@ import pandas as pd
 import typing
 
 
-def load_dataset(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_dataset(filepath: str, use_n: int | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Load pandas dataframe dataset from pickle
+    Load pandas dataframe dataset from pickle.
 
-    Outputs:
-        X: data
-        y: labels
+    Args:
+        filepath (str): filepath to the dataset to use.
+        use_n (int|None): if set, only use the first n rows of the dataset. If None, use all rows.
+
+    Returns:
+        X, y (tuple[DataFrame, DataFrame]): tuple of data and labels
 
     _______________DATA__________________    ___LABEL___
     TILE_R1     TILE_R2 ...     TILE_B9         MOVE
@@ -24,18 +27,25 @@ def load_dataset(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     df = pd.read_pickle(filepath)
     moves_df = df["MOVE"]
     data_df = df.loc[:, df.columns != "MOVE"]
+    if use_n:
+        moves_df = moves_df[0:use_n]
+        data_df = data_df[0:use_n]
     return (data_df, moves_df)
 
 
-def train_model(filepath: str = "cfop-dataset-processed/dataset.pkl") -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+def train_model(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
     """
     Train a new model using the specified dataset.
+
+    Args:
+        filepath (str): filepath to the dataset to use.
+        use_n (int|None): if set, only use the first n rows of the dataset. If None, use all rows.
 
     Returns:
         The new model, along with X_test and y_test.
     """
     # TODO change filepath to actual file
-    X, y = load_dataset(filepath)
+    X, y = load_dataset(filepath, use_n)
 
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42, stratify=y)
 
@@ -54,13 +64,26 @@ def train_model(filepath: str = "cfop-dataset-processed/dataset.pkl") -> tuple[t
     classifier = RandomForestClassifier()
 
     # TODO: different scoring algoritme?
-    grid_search = sklearn.model_selection.RandomizedSearchCV(classifier, param_grid, cv=2, n_iter=50, scoring='f1_macro') # Of: scoring='roc_auc'
+    grid_search = sklearn.model_selection.RandomizedSearchCV(classifier, param_grid, cv=2, n_iter=50, scoring='balanced_accuracy')
+    # Veelgebruikte scorings (https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-string-names):
+        # scoring='roc_auc'
+        # scoring='f1_macro'
+        # scoring='accuracy'
+        # ...
     grid_search.fit(X_train, y_train)
 
     return (grid_search, X_test, y_test)
 
 
 def show_model_score(grid_search, X_test, y_test):
+    """
+    Gets the ROC curve for the given model.
+
+    Args:
+        grid_search: The trained model.
+        X_test: DataFrame of all test data.
+        y_test: DataFrame of corresponding labels.
+    """
     print(grid_search.best_params_)
     print(grid_search.best_score_)
 
