@@ -1,9 +1,7 @@
-import os
-import json
 import pandas as pd
 import pycuber as pc
 from pycuber.solver import CFOPSolver
-from IPython.display import display, HTML, SVG
+from IPython.display import display, HTML
 import uuid
 import time
 from utils.states import cast_state, uncast_state
@@ -74,8 +72,7 @@ def execute_move(move: str, state: pd.DataFrame) -> pd.DataFrame:
             for cubie in row:
                 result.append(color_map[str(cubie).lower()])
 
-    result_str = " ".join(result)
-    return cast_state(result_str)
+    return cast_state(result)
     
 def execute_move_list(move: str, state: list) -> list:
     cube = pc.Cube(pc.array_to_cubies(state))    
