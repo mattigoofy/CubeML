@@ -82,11 +82,22 @@ Random forest heeft de parameters ([scikitlearn](https://scikit-learn.org/stable
 
 De beste hyperparameter tuning strategie zal een random search zijn, omdat een grid search te veel waarden moet bekijken.
 
+Voor een eerste eenvoudige random search testen we enkel de belangrijkste parameters:
+
+- n_estimators = 100, 200, 300
+- max_depth = 10, 20, 30, None
+- max_features = sqrt, log2
+- min_samples_split = 2, 5, 10
+- min_samples_leaf = 1, 2, 4
+- class_weight = None, balanced (Vermoedelijk is balanced beter omdat dit de klassen herweegt)
+
 ### Scoring function
 
 Lijst van alle mogelijke scorings: https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-string-names
 
 Omdat we met een c algoritme werken dat meer dan twee klassen bevat, kunnen alle binary scoring algoritmes niet gebruikt worden.
+
+Als scoring gebruiken we f1_macro. Deze score berekent eerst de F1-score per klasse en neemt daarna het gemiddelde. Daardoor telt elke move even zwaar mee, ook als sommige moves minder vaak voorkomen in de dataset.
 
 ### Validation Strategy
 

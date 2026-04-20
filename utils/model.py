@@ -39,22 +39,26 @@ def train_model(filepath: str = "cfop-dataset-processed/dataset.pkl") -> tuple[t
 
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42, stratify=y)
 
-    param_grid = {
-        'max_depth': np.arange(2, 5, 1)
+    param_distributions = {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [10, 20, 30, None],
+        "max_features": ["sqrt", "log2"],
+        "min_samples_split": [2, 5, 10],
+        "min_samples_leaf": [1, 2, 4],
+        "class_weight": [None, "balanced"],
     }
 
-    # param_grid = {
-    #     'n_estimators': ...,
-    #     'max_depth': ...,
-    #     'max_features': ...,
-    #     'min_samples_split': ...,
-    #     'min_samples_leaf': ...,
-    # }
+    classifier = RandomForestClassifier(random_state=42)
 
-    classifier = RandomForestClassifier()
-
-    # TODO: different scoring algoritme?
-    grid_search = sklearn.model_selection.RandomizedSearchCV(classifier, param_grid, cv=2, n_iter=50, scoring='f1_macro') # Of: scoring='roc_auc'
+    grid_search = sklearn.model_selection.RandomizedSearchCV(
+        classifier,
+        param_distributions=param_distributions,
+        n_iter=10,
+        cv=3,
+        scoring="f1_macro",
+        random_state=42,
+        n_jobs=-1,
+    )
     grid_search.fit(X_train, y_train)
 
     return (grid_search, X_test, y_test)
