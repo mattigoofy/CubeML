@@ -4,7 +4,7 @@ from utils.cube import visualize_scramble, execute_move, is_cube_solved, visuali
 MAX_NUM_MOVES = 1000
 
 def main():
-    model, X_test, y_test = train_model("cfop-dataset-processed/dataset_with_prime.pkl", 100000)
+    model, X_test, y_test = train_model("cfop-dataset-processed/dataset.pkl", 100000)
     show_model_score(model, X_test, y_test)
 
     state = X_test[:1]
