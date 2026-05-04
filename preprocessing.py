@@ -199,7 +199,7 @@ if __name__ == "__main__":
         "./cfop-dataset/training.seq.99"
     ]
     path_out_dir: str = "./cfop-dataset-processed"
-    path_out_file: str = "dataset_test.pkl"
+    path_out_file: str = "dataset.pkl"
     path_out: str = os.path.join(path_out_dir, path_out_file)
     for p in path_in:
         if not os.path.isfile(p):

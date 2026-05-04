@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_selection import mutual_info_classif
 
+from utils.model import load_dataset
+
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET_PATH = ROOT_DIR / "cfop-dataset-processed" / "dataset.pkl"
@@ -16,25 +18,6 @@ FACE_ORDER = ("L", "U", "F", "D", "R", "B")
 COMPLEXITY_BIN_EDGES = (0, 18, 24, 30, 36, 55)
 COMPLEXITY_BIN_LABELS = ("0-17", "18-23", "24-29", "30-35", "36-54")
 
-
-def load_dataset(dataset_path: Path) -> pd.DataFrame:
-    if not dataset_path.is_file():
-        raise FileNotFoundError(f"Dataset not found at {dataset_path}")
-
-    df = pd.read_pickle(dataset_path)
-    required_columns = {
-        f"TILE_{face}{tile_index}"
-        for face in FACE_ORDER
-        for tile_index in range(1, 10)
-    }
-    required_columns.add("MOVE")
-
-    missing_columns = sorted(required_columns.difference(df.columns))
-    if missing_columns:
-        missing_preview = ", ".join(missing_columns[:5])
-        raise ValueError(f"Dataset is missing expected columns: {missing_preview}")
-
-    return df
 
 
 def compute_move_distribution(df: pd.DataFrame) -> pd.Series:
@@ -235,7 +218,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     plt.style.use("default")
     args = parse_args()
-    df = load_dataset(args.dataset)
+    data_df, moves_df = load_dataset(str(args.dataset))
+    df = data_df.assign(MOVE=moves_df)
 
     move_counts = compute_move_distribution(df)
     misplaced_stickers = compute_misplaced_sticker_counts(df)
