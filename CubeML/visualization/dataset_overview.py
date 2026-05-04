@@ -7,29 +7,76 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.feature_selection import mutual_info_classif
+from datetime import datetime
 
-from utils.model import load_dataset
+from CubeML.utils.model import load_dataset
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET_PATH = ROOT_DIR / "cfop-dataset-processed" / "dataset.pkl"
+DEFAULT_DATASET_PATH = ROOT_DIR / "datasets" / "cfop-dataset-processed" / "dataset_no_prime.pkl"
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "output"
-FACE_ORDER = ("L", "U", "F", "D", "R", "B")
+DEFAULT_FACE_ORDER = ("L", "U", "F", "D", "R", "B")  # Preferred ordering for standard moves
 COMPLEXITY_BIN_EDGES = (0, 18, 24, 30, 36, 55)
 COMPLEXITY_BIN_LABELS = ("0-17", "18-23", "24-29", "30-35", "36-54")
 
+
+def extract_faces_from_dataset(df: pd.DataFrame, preferred_order: tuple[str, ...] = DEFAULT_FACE_ORDER) -> tuple[str, ...]:
+    """
+    Extract unique face identifiers from dataset column names.
+    
+    Tile columns follow pattern TILE_{face}{tile_index} where tile_index is 1-9.
+    Extracted faces are ordered by preferred_order if provided, with any new faces appended.
+    
+    Args:
+        df: DataFrame with tile columns (e.g., TILE_L1, TILE_L'1)
+        preferred_order: Preferred ordering for standard faces (e.g., L, U, F, D, R, B)
+    
+    Returns:
+        Tuple of unique face identifiers in preferred order
+    """
+    tile_columns = [col for col in df.columns if col.startswith("TILE_")]
+    
+    # Extract faces by removing "TILE_" prefix and last digit (tile index)
+    faces = set()
+    for col in tile_columns:
+        face = col[5:-1]  # Remove "TILE_" and the last digit
+        faces.add(face)
+    
+    # Order: first preferred faces that exist, then any new faces alphabetically
+    ordered = [f for f in preferred_order if f in faces] + sorted(faces - set(preferred_order))
+    
+    return tuple(ordered)
 
 
 def compute_move_distribution(df: pd.DataFrame) -> pd.Series:
     return df["MOVE"].value_counts().sort_values(ascending=False)
 
 
-def compute_misplaced_sticker_counts(df: pd.DataFrame) -> pd.Series:
+def compute_misplaced_sticker_counts(df: pd.DataFrame, face_order: tuple[str, ...]) -> pd.Series:
     misplaced = np.zeros(len(df), dtype=np.int16)
-    for face in FACE_ORDER:
-        face_columns = [f"TILE_{face}{tile_index}" for tile_index in range(1, 10)]
-        center_values = df[f"TILE_{face}5"]
-        misplaced += df[face_columns].ne(center_values, axis=0).sum(axis=1).to_numpy(np.int16)
+    for face in face_order:
+        # Find which tile indices are available for this face
+        available_tiles = [
+            i for i in range(1, 10)
+            if f"TILE_{face}{i}" in df.columns
+        ]
+        
+        if not available_tiles:
+            continue
+        
+        # Use tile 5 (center) as reference if available, otherwise use most common value
+        if f"TILE_{face}5" in df.columns:
+            reference_values = df[f"TILE_{face}5"]
+        else:
+            # Use the most common value across all tiles for this face as reference
+            face_tile_cols = [f"TILE_{face}{i}" for i in available_tiles]
+            # Stack all tiles and find the mode for each position
+            all_values = df[face_tile_cols].values.flatten()
+            reference_values = pd.Series(all_values).mode()[0]
+        
+        # Compare only available tiles against reference
+        face_columns = [f"TILE_{face}{i}" for i in available_tiles]
+        misplaced += df[face_columns].ne(reference_values, axis=0).sum(axis=1).to_numpy(np.int16)
 
     return pd.Series(misplaced, index=df.index, name="misplaced_stickers")
 
@@ -154,7 +201,8 @@ def create_overview_figure(
 
 def save_overview_plot(output_dir: Path, figure: plt.Figure) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "dataset_overview.png"
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_path = output_dir / f"dataset_overview_{timestamp}.png"
     figure.savefig(output_path, dpi=180, bbox_inches="tight")
     return output_path
 
@@ -221,8 +269,11 @@ def main() -> None:
     data_df, moves_df = load_dataset(str(args.dataset))
     df = data_df.assign(MOVE=moves_df)
 
+    # Extract face order dynamically from dataset
+    face_order = extract_faces_from_dataset(df, preferred_order=DEFAULT_FACE_ORDER)
+
     move_counts = compute_move_distribution(df)
-    misplaced_stickers = compute_misplaced_sticker_counts(df)
+    misplaced_stickers = compute_misplaced_sticker_counts(df, face_order=face_order)
     tile_information = compute_tile_mutual_information(df)
     move_share_by_complexity = compute_move_share_by_complexity(df, misplaced_stickers)
 
