@@ -4,7 +4,7 @@ from pycuber.solver import CFOPSolver
 from IPython.display import display, HTML
 import uuid
 import time
-from utils.states import cast_state, uncast_state
+from CubeML.utils.states import cast_state, uncast_state
 
 def visualize_scramble(state: pd.DataFrame):
     state_uncasted = uncast_state(state)
