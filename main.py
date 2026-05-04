@@ -1,5 +1,5 @@
-from utils.model import train_model, show_model_score
-from utils.cube import visualize_scramble, execute_move, is_cube_solved, visualize_scramble_terminal
+from CubeML.utils.model import train_model, show_model_score
+from CubeML.utils.cube import visualize_scramble, execute_move, is_cube_solved, visualize_scramble_terminal
 
 MAX_NUM_MOVES = 1000
 

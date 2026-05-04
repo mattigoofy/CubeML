@@ -1,8 +1,8 @@
 import pandas as pd
 import os
 from tqdm import tqdm
-from utils.cube import execute_move_str
-from utils.states import cast_state
+from CubeML.utils.cube import execute_move_str
+from CubeML.utils.states import cast_state
 
 from multiprocessing import Pool, Manager
 from functools import partial
