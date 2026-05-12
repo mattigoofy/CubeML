@@ -4,7 +4,7 @@ from CubeML.utils.cube import visualize_scramble, execute_move, is_cube_solved, 
 MAX_NUM_MOVES = 1000
 
 def main():
-    model, X_test, y_test = train_model("cfop-dataset-processed/dataset.pkl", 100000)
+    model, X_test, y_test = train_model("mlp", "cfop-dataset-processed/dataset_no_prime.pkl", 10000)
     show_model_score(model, X_test, y_test)
 
     state = X_test[:1]
@@ -15,7 +15,7 @@ def main():
             break
 
         prediction = model.predict(state)[0]
-        state = execute_move(prediction, state)
+        state = execute_move(str(prediction), state)
         print(f"Prediction: {prediction}")
         number_of_moves += 1
 

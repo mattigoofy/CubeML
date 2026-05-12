@@ -1,6 +1,8 @@
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import LabelBinarizer
+from scipy.stats import loguniform
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -33,7 +35,15 @@ def load_dataset(filepath: str, use_n: int | None = None) -> tuple[pd.DataFrame,
     return (data_df, moves_df)
 
 
-def train_model(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+def train_model(classifier: typing.Literal["decision_tree", "mlp"], filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+    match classifier:
+        case "decision_tree":
+            return train_model_decision_tree(filepath, use_n)
+        case "mlp":
+            return train_model_mlp(filepath, use_n)
+
+
+def train_model_decision_tree(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
     """
     Train a new model using the specified dataset.
 
@@ -59,6 +69,66 @@ def train_model(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int
     }
 
     classifier = RandomForestClassifier(random_state=42)
+
+    grid_search = sklearn.model_selection.RandomizedSearchCV(
+        classifier,
+        param_distributions=param_distributions,
+        n_iter=10,
+        cv=3,
+        scoring="f1_macro",
+        random_state=42,
+        n_jobs=-1,
+    )
+    grid_search.fit(X_train, y_train)
+
+    return (grid_search, X_test, y_test)
+
+
+def train_model_mlp(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+    """
+    Train a new model using the specified dataset.
+
+    Args:
+        filepath (str): filepath to the dataset to use.
+        use_n (int|None): if set, only use the first n rows of the dataset. If None, use all rows.
+
+    Returns:
+        The new model, along with X_test and y_test.
+    """
+    X, y = load_dataset(filepath, use_n)
+
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42, stratify=y)
+
+    param_distributions = {
+        # Network architecture
+        "hidden_layer_sizes": [
+            (256, 128),
+            (512, 256),
+            (512, 256, 128),
+            (256, 256, 128),
+            (1024, 512, 256),
+            (512, 512, 256, 128),
+        ],
+
+        # Activation
+        "activation": ["relu", "tanh"],
+
+        # Solver & learning rate
+        "solver": ["adam"],
+        "learning_rate_init": loguniform(1e-4, 1e-2),
+        "learning_rate": ["constant", "adaptive"],
+
+        # Regularisation
+        "alpha": loguniform(1e-5, 1e-1),     # L2 penalty
+
+        # Stopping
+        "max_iter": [300, 500],
+        # "early_stopping": [True],
+        "validation_fraction": [0.1],
+        # "n_iter_no_change": [20],
+    }
+
+    classifier = MLPClassifier(random_state=42)
 
     grid_search = sklearn.model_selection.RandomizedSearchCV(
         classifier,
@@ -114,7 +184,7 @@ def show_model_score(grid_search, X_test, y_test):
 
 
 if __name__ == '__main__':
-    model, X_test, y_test = train_model()
+    model, X_test, y_test = train_model_decision_tree()
     show_model_score(model, X_test, y_test)
 
     random_state = X_test.iloc[0]
