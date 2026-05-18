@@ -41,10 +41,10 @@ def load_dataset(filepath: str, use_n: int | None = None) -> tuple[pd.DataFrame,
     return (data_df, moves_df)
 
 
-def train_model(classifier: typing.Literal["decision_tree", "mlp", "encoder", "autoencoder", "mlp_fixed"], filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+def train_model(classifier: typing.Literal["random_forest", "mlp", "encoder", "autoencoder", "mlp_fixed"], filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
     match classifier:
-        case "decision_tree":
-            return train_model_decision_tree(filepath, use_n)
+        case "random_forest":
+            return train_model_random_forest(filepath, use_n)
         case "mlp":
             return train_model_mlp(filepath, use_n)
         case "encoder":
@@ -55,7 +55,7 @@ def train_model(classifier: typing.Literal["decision_tree", "mlp", "encoder", "a
             return train_model_mlp_fixed(filepath, use_n)
 
 
-def train_model_decision_tree(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+def train_model_random_forest(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
     """
     Train a new model using the specified dataset.
 
@@ -391,7 +391,7 @@ def show_model_score(grid_search, X_test, y_test):
 
 
 if __name__ == '__main__':
-    model, X_test, y_test = train_model_decision_tree()
+    model, X_test, y_test = train_model_random_forest()
     show_model_score(model, X_test, y_test)
 
     random_state = X_test.iloc[0]
