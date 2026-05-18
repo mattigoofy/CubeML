@@ -1,6 +1,6 @@
 ## Random Forest
 
-![Random Forest results](descision_tree_no_primes_more_estimators.png)
+![Random Forest results](CubeML/figs/descision_tree_no_primes_more_estimators.png)
 
 Best parameters:
 - n_estimators: 400
@@ -17,7 +17,7 @@ AUC score: 0.9313
 
 ## MLP (plain)
 
-![MLP (plain) results](mlp_fixed_no_primes.png)
+![MLP (plain) results](CubeML/figs/mlp_fixed_no_primes.png)
 
 Best parameters:
 - activation: "relu"
@@ -36,8 +36,17 @@ AUC score: 0.8522
 
 ## Encoder + Random forest
 
+![Random Forest with encoder](CubeML/figs/autoencoder_classifier.png)
+
+Latent space: 32
+
 Best parameters:
-- d
+- n_estimators: 300
+- min_samples_split: 5
+- min_samples_leaf: 1
+- max_features: "sqrt"
+- max_depth: 20
+- class_weight: "balanced"
 
 F1 score: 0.5097
 
