@@ -161,5 +161,5 @@ def create_overview_figure(
     plot_top_tile_information(axes["tile_info"], tile_information)
     plot_move_share_by_complexity(axes["complexity_mix"], move_share_by_complexity)
 
-    figure.suptitle("CubeML Dataset Overview", fontsize=16, fontweight="bold")
+    figure.suptitle("CubeML Dataset Overview With Prime", fontsize=16, fontweight="bold")
     return figure

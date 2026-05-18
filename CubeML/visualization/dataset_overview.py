@@ -20,7 +20,7 @@ from CubeML.visualization.tsne import create_tsne_figure
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET_PATH = ROOT_DIR / "datasets" / "cfop-dataset-processed" / "dataset_no_prime.pkl"
+DEFAULT_DATASET_PATH = ROOT_DIR / "datasets" / "cfop-dataset-processed" / "dataset_with_prime.pkl"
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 DEFAULT_FACE_ORDER = ("L", "U", "F", "D", "R", "B")
 
@@ -117,22 +117,22 @@ def main() -> None:
     )
     output_path = save_figure(args.output_dir, overview_figure, "dataset_overview")
 
-    pca_figure = create_pca_figure(df, misplaced_stickers)
-    pca_output_path = save_figure(args.output_dir, pca_figure, "dataset_pca")
+    # pca_figure = create_pca_figure(df, misplaced_stickers)
+    # pca_output_path = save_figure(args.output_dir, pca_figure, "dataset_pca")
 
-    tsne_figure = create_tsne_figure(df, misplaced_stickers)
-    tsne_output_path = save_figure(args.output_dir, tsne_figure, "dataset_tsne")
+    # tsne_figure = create_tsne_figure(df, misplaced_stickers)
+    # tsne_output_path = save_figure(args.output_dir, tsne_figure, "dataset_tsne")
 
     print_summary(df, move_counts, misplaced_stickers, tile_information, output_path)
-    print(f"Saved PCA visualization to {pca_output_path}")
-    print(f"Saved t-SNE visualization to {tsne_output_path}")
+    # print(f"Saved PCA visualization to {pca_output_path}")
+    # print(f"Saved t-SNE visualization to {tsne_output_path}")
 
     if args.show:
         plt.show()
     else:
         plt.close(overview_figure)
-        plt.close(pca_figure)
-        plt.close(tsne_figure)
+        # plt.close(pca_figure)
+        # plt.close(tsne_figure)
 
 
 if __name__ == "__main__":
