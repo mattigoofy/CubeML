@@ -72,12 +72,12 @@ def train_model_random_forest(filepath: str = "cfop-dataset-processed/dataset.pk
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42, stratify=y)
 
     param_distributions = {
-        "n_estimators": [100, 200, 300, 400, 500],
+        "n_estimators": [50, 80, 100, 200, 300, 400, 500],
         "max_depth": [10, 20, 30, None],
         "max_features": ["sqrt", "log2"],
         "min_samples_split": [2, 5, 10],
         "min_samples_leaf": [1, 2, 4],
-        "class_weight": [None, "balanced"],
+        "class_weight": [None, "balanced", "balanced_subsample"],
     }
 
     classifier = RandomForestClassifier(random_state=42)
@@ -360,8 +360,8 @@ def show_model_score(grid_search, X_test, y_test):
         X_test: DataFrame of all test data.
         y_test: DataFrame of corresponding labels.
     """
-    print(grid_search.best_params_)
-    print(grid_search.best_score_)
+    print(f"Best parameters: {grid_search.best_params_}")
+    print(f"Best score: {grid_search.best_score_}")
 
     # Plot the ROC curve (one per class)
     y_score = grid_search.predict_proba(X_test)
