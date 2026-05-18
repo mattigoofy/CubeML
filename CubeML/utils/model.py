@@ -41,7 +41,7 @@ def load_dataset(filepath: str, use_n: int | None = None) -> tuple[pd.DataFrame,
     return (data_df, moves_df)
 
 
-def train_model(classifier: typing.Literal["decision_tree", "mlp", "encoder", "autoencoder"], filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+def train_model(classifier: typing.Literal["decision_tree", "mlp", "encoder", "autoencoder", "mlp_fixed"], filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
     match classifier:
         case "decision_tree":
             return train_model_decision_tree(filepath, use_n)
@@ -51,6 +51,8 @@ def train_model(classifier: typing.Literal["decision_tree", "mlp", "encoder", "a
             return train_encoder(filepath, use_n)
         case "autoencoder":
             return train_autoencoder_with_classifier(filepath, use_n)
+        case "mlp_fixed":
+            return train_model_mlp_fixed(filepath, use_n)
 
 
 def train_model_decision_tree(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
@@ -70,7 +72,7 @@ def train_model_decision_tree(filepath: str = "cfop-dataset-processed/dataset.pk
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42, stratify=y)
 
     param_distributions = {
-        "n_estimators": [100, 200, 300],
+        "n_estimators": [100, 200, 300, 400, 500],
         "max_depth": [10, 20, 30, None],
         "max_features": ["sqrt", "log2"],
         "min_samples_split": [2, 5, 10],
@@ -301,6 +303,47 @@ def train_autoencoder_with_classifier(
         param_grid=param_distributions,
         cv=3,
         scoring="accuracy",
+        n_jobs=-1,
+    )
+    grid_search.fit(X_train, y_train)
+
+    return (grid_search, X_test, y_test)
+
+
+def train_model_mlp_fixed(filepath: str = "cfop-dataset-processed/dataset.pkl", use_n: int | None = None) -> tuple[typing.Any, pd.DataFrame, pd.DataFrame]:
+    """
+    Train a new model using the specified dataset.
+
+    Args:
+        filepath (str): filepath to the dataset to use.
+        use_n (int|None): if set, only use the first n rows of the dataset. If None, use all rows.
+
+    Returns:
+        The new model, along with X_test and y_test.
+    """
+    X, y = load_dataset(filepath, use_n)
+
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10, random_state=42, stratify=y)
+
+    classifier = MLPClassifier(
+        activation="relu",
+        alpha=0.0275,
+        hidden_layer_sizes=(1024, 512, 256),
+        learning_rate="constant",
+        learning_rate_init=0.0001349,
+        max_iter=1500,
+        solver="adam",
+        validation_fraction=0.1,
+        random_state=42,
+    )
+
+    grid_search = sklearn.model_selection.RandomizedSearchCV(
+        classifier,
+        param_distributions={},
+        n_iter=1,
+        cv=3,
+        scoring="f1_macro",
+        random_state=42,
         n_jobs=-1,
     )
     grid_search.fit(X_train, y_train)
